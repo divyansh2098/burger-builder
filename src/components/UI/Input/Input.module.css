@@ -27,7 +27,7 @@
     background-color: lightgreen;
 }
 .wrong{
-    border:1px solid salmon;
+    border:1px solid red;
 }
 .wrong:focus{
     background-color: salmon;

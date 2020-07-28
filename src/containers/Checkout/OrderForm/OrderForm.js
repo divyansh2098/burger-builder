@@ -5,6 +5,9 @@ import axios from '../../../axios-orders'
 import LoadSpinner from '../../../components/UI/LoadSpinner/LoadSpinner'
 import Aux from '../../../hoc/Auxiliary/Auxiliary'
 import Input from '../../../components/UI/Input/Input'
+import {connect} from 'react-redux'
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler'
+import {purchaseBurger} from '../../../store/actions/index'
 const email_regex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
 class OrderForm extends Component{
     state = {
@@ -85,26 +88,27 @@ class OrderForm extends Component{
         }
     }
     placeOrderHandler = () =>{
-        this.setState({loading: true})
-        //console.log(this.props)
         let formData = {}
         for (let key in this.state.orders){
             formData[key] = this.state.orders[key].value
         }
         const order = {
-            ingredients: this.props.ingredients,
-            price: this.props.total_price,
-            customerInfo: formData
+            ingredients: this.props.ings,
+            price: this.props.price,
+            customerInfo: formData,
+            userId: this.props.userId
         }
-        axios.post('/orders.json',order)
-        .then(response=>{
-            this.setState({loading:false});
-            this.props.history.push('/')
-        })
-        .catch(error=>{
-            this.setState({loading:true});
-            console.log(error);
-        })
+        this.props.purchaseBurger(order,this.props.tokenId);
+        this.props.history.push('/');
+        // axios.post('/orders.json',order)
+        // .then(response=>{
+        //     this.setState({loading:false});
+        //     this.props.history.push('/')
+        // })
+        // .catch(error=>{
+        //     this.setState({loading:true});
+        //     console.log(error);
+        // })
     }
     checkValidity = (value,rules,type = null) => {
         let isValid = false
@@ -147,7 +151,7 @@ class OrderForm extends Component{
                 config: this.state.orders[key]
             })
         }
-        if(!this.state.loading){
+        if(!this.props.loading){
             Form =  <Aux>
                         <form>
                             {formElementArray.map(formElement=>{
@@ -171,4 +175,18 @@ class OrderForm extends Component{
         );
     }
 }
-export default OrderForm
+const mapStatetoProps = state => {
+    return {
+        ings: state.burger.ingredients,
+        price: state.burger.total_price,
+        loading: state.order.loading,
+        userId: state.auth.userId,
+        tokenId: state.auth.tokenId
+    }
+}
+const mapDispatchtoProps = dispatch => {
+    return {
+        purchaseBurger: (orderData,tokenId) => dispatch(purchaseBurger(orderData,tokenId)),
+    }
+} 
+export default connect(mapStatetoProps,mapDispatchtoProps)(withErrorHandler(OrderForm,axios))

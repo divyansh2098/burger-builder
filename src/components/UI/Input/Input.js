@@ -19,7 +19,7 @@ const input = (props) => {
     //console.log(props.validity) 
     switch(props.elementtype){
         case ('input'):
-            inputElement = <input className = {style} placeholder={props.elementconfig.placeholder} 
+            inputElement = <input className = {style} type={props.elementconfig.type} placeholder={props.elementconfig.placeholder} 
             onChange={props.change}/>
             break
         case ('textarea'):
